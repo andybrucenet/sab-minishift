@@ -94,6 +94,37 @@ You can use the same `build-utils.sh` script to access and run commands through 
     MacBook-Pro:sab-minishift l.abruce$ ./scripts/env-wrapper.sh minishift status
     Stopped
     ```
+* _Use this environment for existing OpenShift scripts._ In some cases, you may want a single command that wraps access to the MiniShift `oc` command. For example, if you are integrating a 3rd-party project like [The OpenShift Bakery Example](https://github.com/toschneck/sakuli-example-bakery-testing). In that case, you have a lot of precreated scripts that want to run `oc` - and, of course, this command normally is wrapped as `./scripts/build-utils.sh minishift oc [...command...]`. In this case, you have two options:
+    1. **Set the local environment.** Basically, use:
+
+        ```
+        eval $(./scripts/env-wrapper minishift oc-env)
+        ```
+        After this, all calls to `oc` will be through the managed MiniShift environment. The disadvantage? You have polluted your local shell's environment space.
+    2. **Create a wrapper for the `oc` command.** If you have access to the source code / scripts and want to call the `oc` command *without* affecting your local shell's environment, you can create a simple script in your local user `PATH` similar to:
+
+        ```
+        echo "#/bin/bash" > ~/bin/lcl-minishift-oc.sh
+        echo "\${HOME}/proj/git/src/github.com/andybrucenet/sab-minishift/scripts/build-utils.sh minishift oc \"\$@\"" >> ~/bin/lcl-minishift-oc.sh
+        chmod +x ~/bin/lcl-minishift-oc.sh
+        ```
+        Now, running the command `lcl-minishift-oc.sh` is exactly the same as running `oc` within the MiniShift-managed environment. Here's an example:
+
+        ```
+        MacBook-Pro:openshift-example-bakery-ci-pipeline l.abruce$ lcl-minishift-oc.sh get project
+        NAME        DISPLAY NAME   STATUS
+        myproject   My Project     Active
+        ```
+        The above works because the `PATH` variable contains a reference to `${HOME}/bin`. You'd have to check your local environment to see if the same works for you.
+        The next step would be to change references to `oc` in your local scripts to an environment variable `$OC`.
+        
+        The last step? In the top of your local scripts, use:
+
+        ```
+        OC=${OC:-oc}
+        ```
+        That way, if `OC` is not defined, it defaults to the regular `oc` command.
+    Use whichever approach is more convenient for you.
 
 ## Destroy the Environment
 

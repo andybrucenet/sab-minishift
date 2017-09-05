@@ -9,6 +9,8 @@
 # MiniShift is implemented as an "on-prem" OpenShift. Do not be
 # confused by the specific build commands below.
 
+mkfile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 ########################################################################
 # standard targets
 .PHONY: all build clean rebuild init distclean check-env
@@ -37,22 +39,22 @@ minishift-clean: check-env minishift-stop
 
 minishift-start: check-env
 	$(info Start MiniShift...)
-	@./scripts/build-utils.sh minishift start
+	@$(mkfile_dir)/scripts/build-utils.sh minishift start
 
 minishift-stop: check-env
 	$(info Stop MiniShift...)
-	@./scripts/build-utils.sh minishift stop || true
+	@$(mkfile_dir)/scripts/build-utils.sh minishift stop || true
 
 minishift-init: check-env
 	$(info Init MiniShift...)
-	@./scripts/build-utils.sh minishift-init
+	@$(mkfile_dir)/scripts/build-utils.sh minishift-init
 
 minishift-distclean: check-env minishift-stop
 	$(info Clean MiniShift...)
-	@./scripts/build-utils.sh minishift delete || true
+	@$(mkfile_dir)/scripts/build-utils.sh minishift delete || true
 
 check-env:
 ifndef MAKE_WRAPPER_INVOCATION
-	$(error Invoke through ./scripts/make-wrapper.sh)
+	$(error Invoke through $(mkfile_dir)/scripts/make-wrapper.sh)
 endif
 

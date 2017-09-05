@@ -8,6 +8,8 @@ g_CURDIR="$(pwd)"
 g_SCRIPT_FOLDER_RELATIVE=$(dirname "$0")
 cd "$g_SCRIPT_FOLDER_RELATIVE"
 g_SCRIPT_FOLDER_ABSOLUTE="$(pwd)"
+cd ..
+g_SCRIPT_FOLDER_PARENT_ABSOLUTE="$(pwd)"
 cd "$g_CURDIR"
 
 # send output to stderr
@@ -145,6 +147,10 @@ build-utils-i-minishift() {
       rm -fR ~/.kube/192.168.64.5_8443
       yes | cp ~/.kube/kubeconfig-orig.config ~/.kube/config 
       ;;
+    cmd)
+      minishift "$@"
+      l_rc=$?
+      ;;
     login)
       if echo "$l_minishift_status" | grep --quiet -i 'running' ; then
         # set environment
@@ -199,7 +205,7 @@ build-utils-x-up() {
 
   # build the environment (deploys to local kubernetes)
   echo '***Build project...'
-	"$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh build
+  "$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh -f "$g_SCRIPT_FOLDER_PARENT_ABSOLUTE"/Makefile build
   l_rc=$?
   [ $l_rc -ne 0 ] && return $l_rc
   echo ''
@@ -220,7 +226,7 @@ build-utils-x-up() {
   if [ x"$SAB_MINISHIFT_IS_KUBE_FOR_MAC" != x ] ; then
     echo '***Create port forwarding...'
     #build-utils-i-minishift-mac-port-forward update
-	  "$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh mac-port-forwards
+    "$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh -f "$g_SCRIPT_FOLDER_PARENT_ABSOLUTE"/Makefile mac-port-forwards
     l_rc=$?
     [ $l_rc -ne 0 ] && return $l_rc
     echo ''
@@ -254,7 +260,7 @@ build-utils-x-down() {
 
   # cleanup environment
   echo '***Clean local project...'
-	"$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh clean
+  "$g_SCRIPT_FOLDER_ABSOLUTE"/make-wrapper.sh -f "$g_SCRIPT_FOLDER_PARENT_ABSOLUTE"/Makefile clean
   l_rc=$?
   [ $l_rc -ne 0 ] && return $l_rc
   echo ''
