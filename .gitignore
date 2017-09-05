@@ -1,0 +1,16 @@
+# standard things we ignore
+*~
+.git
+.vagrant
+*.pyc
+*.pyo
+.idea
+*.swp
+.DS_Store
+.swo
+.swp
+.*#
+
+# specific folders
+.localdata
+
