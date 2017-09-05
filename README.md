@@ -18,8 +18,8 @@ And we also provide some helpful [expected output](#some-expected-output)
 
 You will need to have:
 
-* GNU `make` - https://www.gnu.org/software/make/
-* Docker - https://www.docker.com
+* [Minishift Prerequisites](https://docs.openshift.org/latest/minishift/getting-started/installing.html#install-prerequisites) - Be sure you have the required tools / environment for your operating system.
+* [GNU `make`](https://www.gnu.org/software/make/) - We use `make` to build / initialize / destroy the MiniShift environment.
 
 That should be it.
 
