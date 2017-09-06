@@ -98,7 +98,7 @@ build-utils-i-minishift() {
       ;;
     start)
       if ! echo "$l_minishift_status" | grep --quiet -i 'running' ; then
-        eval minishift start $SAB_MINISHIFT_MINISHIFT_START_ARGS 2>&1 | tee ./.localdata/minishift/last-start.txt
+        eval minishift start $SAB_MINISHIFT_START_ARGS 2>&1 | tee ./.localdata/minishift/last-start.txt
         l_rc=$?
         [ $l_rc -ne 0 ] && return $l_rc
 
@@ -116,7 +116,7 @@ build-utils-i-minishift() {
           if [ $l_performed_docker_restart -eq 1 ] ; then
             # restart minishift - a one-time restart had to occur
             minishift stop
-            eval minishift start $SAB_MINISHIFT_MINISHIFT_START_ARGS
+            eval minishift start $SAB_MINISHIFT_START_ARGS
             l_rc=$?
           fi
         fi
@@ -287,7 +287,7 @@ build-utils-x-minishift-is-running() {
 
 ########################################################################
 # run a command through the minishift docker
-build-utils-x-minishift-docker() {
+build-utils-i-minishift-docker() {
   # locals
   local l_rc=0
 
@@ -298,6 +298,21 @@ build-utils-x-minishift-docker() {
   # now the command
   docker run --rm -it --privileged --pid=host centos:7 nsenter -t 1 -m -u -n -i \
     sh -c "$@"
+}
+
+########################################################################
+# run a command through the minishift docker
+build-utils-x-minishift-docker() {
+  # locals
+  local l_rc=0
+
+  # setup env
+  eval $(minishift docker-env)
+  l_rc=$? ; [ $l_rc -ne 0 ] && echoerr 'Failure' && return $l_rc
+
+  # now the command
+  docker run --rm -it --privileged --pid=host centos:7 nsenter -t 1 -m -u -n -i \
+		"$@"
 }
 
 ########################################################################
@@ -328,10 +343,10 @@ build-utils-x-minishift-init() {
     l_rc=$? ; [ $l_rc -ne 0 ] && echoerr 'Failure' && return $l_rc
     echo ''
     echo "Verify MiniShift Docker access to git host '$SAB_MINISHIFT_GIT_HOST'..."
-    #build-utils-x-minishift-docker-install-host "$SAB_MINISHIFT_GIT_HOST"
+    #build-utils-i-minishift-docker-install-host "$SAB_MINISHIFT_GIT_HOST"
     #l_rc=$? ; [ $l_rc -ne 0 ] && echoerr 'Failure' && return $l_rc
     #set -x
-    l_msg=$(build-utils-x-minishift-docker "ping -c 1 -w 5 $SAB_MINISHIFT_GIT_HOST >/dev/null 2>&1; ping -c 1 -w 5 $SAB_MINISHIFT_GIT_HOST && echo PING_OK")
+    l_msg=$(build-utils-i-minishift-docker "ping -c 1 -w 5 $SAB_MINISHIFT_GIT_HOST >/dev/null 2>&1; ping -c 1 -w 5 $SAB_MINISHIFT_GIT_HOST && echo PING_OK")
     l_rc=$? ; [ $l_rc -ne 0 ] && echoerr 'Failure' && return $l_rc
     set +x
     if ! echo "$l_msg" | grep --quiet -e 'PING_OK' ; then
