@@ -70,6 +70,12 @@ build-utils-i-minishift-mac-port-forward() {
 }
 
 ########################################################################
+# internal: account for "improved" 'minishift status'
+build-utils-i-minishift-status() {
+  minishift status | grep -ie '^minishift:\s' | awk -F' ' '{print $2}' | tr '[A-Z]' '[a-z]'
+}
+
+########################################################################
 # internal: MiniShift wrappers
 build-utils-i-minishift() {
   # input
@@ -81,10 +87,24 @@ build-utils-i-minishift() {
   local l_tmp_file=''
   local l_performed_docker_restart=0
 
+  # no minishift? we are Done
+  if ! which minishift >/dev/null 2>&1 ; then
+    echoerr "Missing minishift binary" && return 2
+  fi
+
+  # no hyperkit? we are Done
+  if ! which hyperkit >/dev/null 2>&1 ; then
+    echoerr "Missing hyperkit binary (is Docker Desktop installed?)" && return 2
+  fi
+
   # handle commands
   l_tmp_file="/tmp/build-utils-i-minishift.$$"
-  l_minishift_status=$(minishift status)
+  l_minishift_status=$(build-utils-i-minishift-status)
   case $i_command in
+    status)
+      minishift status
+      return $?
+      ;;
     is-avail)
       [ "$l_minishift_status" != x ] && return 0
       return 1
@@ -278,7 +298,7 @@ build-utils-x-minishift-is-running() {
   local l_status=0
 
   # check status
-  l_status=$(minishift status | tr '[A-Z]' '[a-z]')
+  l_status=$(build-utils-i-minishift-status)
   l_rc=$?
   [ $l_rc -ne 0 ] && return 1
   [ x"$l_status" = x'running' ] && return 0
@@ -312,7 +332,7 @@ build-utils-x-minishift-docker() {
 
   # now the command
   docker run --rm -it --privileged --pid=host centos:7 nsenter -t 1 -m -u -n -i \
-		"$@"
+    "$@"
 }
 
 ########################################################################

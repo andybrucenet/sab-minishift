@@ -48,7 +48,7 @@ You can easily build, start, and stop the MiniShift environment:
     Example:
 
     ```
-    ./scripts/build-utils.sh minishift-docker ps -a
+    ./scripts/build-utils.sh minishift-docker docker ps -a
     ```
 
 ## MiniShift Access and Commands

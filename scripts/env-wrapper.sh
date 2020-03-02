@@ -53,7 +53,7 @@ export \
   SAB_MINISHIFT_TOKENS_ETCD_DISCOVERY_TOKEN
 
 # some minishift variable defaults
-SAB_MINISHIFT_START_ARGS="${SAB_MINISHIFT_START_ARGS:---memory 4096 --cpus 2}"
+SAB_MINISHIFT_START_ARGS="${SAB_MINISHIFT_START_ARGS:---memory 4096 --cpus 2 --vm-driver hyperkit}"
 export \
   SAB_MINISHIFT_START_ARGS
 
