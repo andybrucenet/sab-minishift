@@ -162,10 +162,10 @@ build-utils-i-minishift() {
       docker "$@"
       ;;
     delete)
-      minishift delete --clear-cache
+      minishift delete --clear-cache --force
       rm -fR ~/.minishift
       rm -fR ~/.kube/192.168.64.5_8443
-      yes | cp ~/.kube/kubeconfig-orig.config ~/.kube/config 
+      [ -s ~/.kube/kubeconfig-orig.config ] && /bin/cp ~/.kube/kubeconfig-orig.config ~/.kube/config 
       ;;
     cmd)
       minishift "$@"
